@@ -3,6 +3,7 @@ const albumRatingInput = document.querySelector("#min-album-rating-input");
 const albumSearchForm = document.querySelector("#album-search-form");
 const invalidTitle = document.querySelector("#invalid-title");
 const invalidRating = document.querySelector("#invalid-rating");
+const messageContainer = document.querySelector("#message-container");
 
 /* TASK #1 */
 const albumRows = document.querySelector("#album-rows");
@@ -111,6 +112,9 @@ function searchAlbumOrArtist(searchCriteria) {
       return album;
     }
   });
+  if (results.length === 0) {
+    displaySearchNullMessage();
+  }
   return results;
 }
 
@@ -126,6 +130,9 @@ function searchAlbumByRating(searchCriteria) {
     return album.averageRating.toString().includes(query);
   });
 
+  if (results.length === 0) {
+    displaySearchNullMessage();
+  }
   return results;
 }
 
@@ -133,7 +140,6 @@ function searchAlbumByRating(searchCriteria) {
 function renderAlbumSearch(searchCriteria) {
   try {
     albumRows.innerHTML = "";
-
     if (searchCriteria.length > 0) {
       searchCriteria.forEach((album) => {
         const albumtemplate = `
@@ -147,8 +153,6 @@ function renderAlbumSearch(searchCriteria) {
           </tr> `;
         albumRows.innerHTML += albumtemplate;
       });
-    } else {
-      // Handle case when no albums are found
     }
   } catch (error) {
     console.error(error);
@@ -159,11 +163,51 @@ function renderAlbumSearch(searchCriteria) {
 function isSuccess() {
   const { albumTitle, albumRating } = validateInputFields();
 
-  const albumResults = searchAlbumOrArtist(albumTitle);
-  const ratingResults = searchAlbumByRating(albumRating);
+  let albumResults = [];
+
+  //filter only by album or artist
+  if (albumTitle && !albumRating) {
+    messageContainer.innerHTML = ""; //Clear null search msg if present
+
+    albumResults = searchAlbumOrArtist(albumTitle);
+    renderAlbumSearch(albumResults);
+  }
+
+  //filter only by album rating
+  if (!albumTitle && albumRating) {
+    messageContainer.innerHTML = ""; //Clear null search msg if present
+
+    const ratingResults = searchAlbumByRating(albumRating);
+    //renderAlbumSearch(ratingResults)
+    renderAlbumSearch(ratingResults);
+  }
+
+  /* fix filter using both criterias */
+
+  //fiter by both album/artist & rating
+  /* if (albumTitle && albumRating) {
+    messageContainer.innerHTML = ""; //Clear null search msg if present
+
+    albumResults = searchAlbumOrArtist(albumTitle);
+
+    const filterByAlbumAndRating = albumResults.filter((album) => {
+      //find out if the album criteria matches the rating criteria
+      return albumResults.some((rating) => rating.album === album.album);
+    });
+
+    renderAlbumSearch(filterByAlbumAndRating);
+  } */
+
   console.log("Search Criteria: ", albumTitle, albumRating);
   console.log(albumResults);
   console.log(ratingResults);
+}
 
-  //renderAlbumSearch(searchAlbumOrArtistResults);
+function displaySearchNullMessage() {
+  const displayNullSearchMsg = `
+          <div id="null-search-message" class="d-flex">
+            <h1>No albums found!!</h1>
+          </div>
+          `;
+  messageContainer.innerHTML = displayNullSearchMsg;
 }

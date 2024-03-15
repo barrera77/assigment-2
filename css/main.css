@@ -9,3 +9,8 @@
 .invalid-feedback i {
   margin-bottom: 1rem;
 }
+
+#null-search-message h1 {
+  margin: auto;
+  color: black;
+}
