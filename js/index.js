@@ -1,24 +1,10 @@
-/* Album Template
-<tr>
-  <td>ALBUM NAME HERE</td>
-  <td>RELEASE DATE HERE</td>
-  <td>ARTIST NAME HERE</td>
-  <td>GENRE HERE</td>
-  <td>AVERAGE RATING HERE</td>
-  <td>NUMBER OF RATINGS HERE</td>
-</tr> 
-*/
-/* 
-const searchInput = document.querySelector("#search-input");
-const minAlbumRatingInput = document.querySelector("#min-album-rating-input");
+const albumInput = document.querySelector("#search-input");
+const albumRatingInput = document.querySelector("#min-album-rating-input");
 const albumSearchForm = document.querySelector("#album-search-form");
 const invalidTitle = document.querySelector("#invalid-title");
 const invalidRating = document.querySelector("#invalid-rating");
 
-searchInput.addEventListener("input", onHandleAlbumSearchInput);
-minAlbumRatingInput.addEventListener("change", onHandleMinAlbumRatingInput);
-albumSearchForm.addEventListener("submit", onSearchAlbum);
-
+/* TASK #1 */
 const albumRows = document.querySelector("#album-rows");
 const url = "public/data/albums.json";
 
@@ -32,18 +18,22 @@ async function fetchAlbumData() {
     }
     const data = await response.json();
 
-    console.table(data);
+    console.table(data); //Log Data for verification purposes
     return data;
   } catch (error) {
     throw error;
   }
 }
-//create data backup
+
+//create fetched data backup
 const albumStore = await fetchAlbumData();
 
+//Function to render the albums data
 async function renderAlbumsData() {
+  //Create a copy of the data store
+  const albumStoreCopy = [...albumStore];
   try {
-    albumStore.forEach((album) => {
+    albumStoreCopy.forEach((album) => {
       const albumtemplate = `
         <tr>
           <td>${album.album}</td>
@@ -59,43 +49,59 @@ async function renderAlbumsData() {
     throw error;
   }
 }
+renderAlbumsData(); //render albums data on init
 
-function onHandleAlbumSearchInput() {
-  const albumName = searchInput.value.trim();
+/* TASK #2 */
 
-  if (albumName.length === 0) {
-    invalidTitle.classList.add("d-flex");
-  } else {
-    invalidTitle.classList.remove("d-flex");
-    return albumName;
-  }
-}
+//Add Event handlers
+albumSearchForm.addEventListener("submit", onSubmitAlbumSearch);
+albumInput.addEventListener("input", onHandleAlbumInput);
+albumRatingInput.addEventListener("input", onHandleAlbumRatingInput);
 
-function onHandleMinAlbumRatingInput() {
-  const albumRating = minAlbumRatingInput.value.trim();
-
-  if (albumRating < 0) {
-    invalidRating.classList.add("d-flex");
-  } else {
-    invalidRating.classList.remove("d-flex");
-    console.log(albumRating);
-    return albumRating;
-  }
-}
-
-function onSearchAlbum(e) {
+function onSubmitAlbumSearch(e) {
   e.preventDefault();
   isSuccess();
 }
 
-function appinit() {
-  renderAlbumsData();
-}
-appinit();
+//Validate values from input fields
+function validateInputFields() {
+  const albumTitle = albumInput.value.toLowerCase().trim();
+  const albumRating = albumRatingInput.value.trim();
 
-//search for the album title/artist name with filter function
-function searchAlbum(searchCriteria) {
-  const query = searchCriteria.toLowerCase();
+  if (albumTitle === "" && (isNaN(albumRating) || albumRating === "")) {
+    invalidTitle.classList.add("d-flex");
+    invalidRating.classList.add("d-flex");
+  } else {
+    invalidTitle.classList.remove("d-flex");
+    invalidRating.classList.remove("d-flex");
+  }
+
+  return { albumTitle, albumRating };
+}
+
+//Handle warnings on input event
+function onHandleAlbumInput() {
+  if (albumInput.value) {
+    invalidTitle.classList.remove("d-flex");
+  }
+}
+
+function onHandleAlbumRatingInput() {
+  const albumRating = albumRatingInput.value.trim();
+
+  if (albumRating === "" || isNaN(albumRating)) {
+    invalidRating.classList.add("d-flex");
+  } else {
+    invalidRating.classList.remove("d-flex");
+  }
+}
+
+//search for the album title/artist name using filter function
+function searchAlbumOrArtist(searchCriteria) {
+  if (!searchCriteria) {
+    return [];
+  }
+  const query = searchCriteria;
 
   const results = albumStore.filter((album) => {
     if (album.album.toLowerCase().includes(query)) {
@@ -108,18 +114,22 @@ function searchAlbum(searchCriteria) {
   return results;
 }
 
-//Search for the rating with filter function
-function searchRating(ratingScore) {
-  const query = ratingScore.toString();
+//Search for the album rating using filter function
+function searchAlbumByRating(searchCriteria) {
+  const query = searchCriteria;
 
-  const results = albumStore.filter((rating) => {
-    if (rating.averageRating.toString().includes(query)) {
-      return;
-    }
+  if (query === "" || isNaN(query)) {
+    return [];
+  }
+
+  const results = albumStore.filter((album) => {
+    return album.averageRating.toString().includes(query);
   });
+
   return results;
 }
 
+//Render search results
 function renderAlbumSearch(searchCriteria) {
   try {
     albumRows.innerHTML = "";
@@ -145,187 +155,15 @@ function renderAlbumSearch(searchCriteria) {
   }
 }
 
+//SUCCESS!!!
 function isSuccess() {
-  const isValidTitle = onHandleAlbumSearchInput();
-  const searchAlbumCriteria = searchAlbum(isValidTitle);
+  const { albumTitle, albumRating } = validateInputFields();
 
-  const isValidRating = onHandleMinAlbumRatingInput();
-  const searchRatingCiteria = searchRating(isValidRating);
+  const albumResults = searchAlbumOrArtist(albumTitle);
+  const ratingResults = searchAlbumByRating(albumRating);
+  console.log("Search Criteria: ", albumTitle, albumRating);
+  console.log(albumResults);
+  console.log(ratingResults);
 
-  if (!isValidTitle && isValidRating) {
-    renderAlbumSearch(searchRatingCiteria);
-  }
-  if (isValidTitle && !isValidRating) {
-    renderAlbumSearch(searchAlbumCriteria);
-  }
-  if (!isValidTitle && !isValidRating) {
-    //display error message
-  }
-  if (isValidTitle && isValidRating) {
-    const filterByAlbumAndRating = searchAlbumCriteria.filter((album) => {
-      //find out if the album criteria matches the rating criteria
-      return searchRatingCiteria.some((rating) => rating.album === album.album);
-    });
-
-    renderAlbumSearch(filterByAlbumAndRating);
-  }
-
-  return isValidTitle, isValidRating;
-}
- */
-
-const searchInput = document.querySelector("#search-input");
-const minAlbumRatingInput = document.querySelector("#min-album-rating-input");
-const albumSearchForm = document.querySelector("#album-search-form");
-const invalidTitle = document.querySelector("#invalid-title");
-const invalidRating = document.querySelector("#invalid-rating");
-
-searchInput.addEventListener("input", onHandleAlbumSearchInput);
-minAlbumRatingInput.addEventListener("change", onHandleMinAlbumRatingInput);
-albumSearchForm.addEventListener("submit", onSearchAlbum);
-
-const albumRows = document.querySelector("#album-rows");
-const url = "public/data/albums.json";
-
-//fetch album data
-async function fetchAlbumData() {
-  try {
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      throw new Error("No data found");
-    }
-    const data = await response.json();
-
-    console.table(data);
-    return data;
-  } catch (error) {
-    throw error;
-  }
-}
-//create data backup
-const albumStore = await fetchAlbumData();
-
-async function renderAlbumsData() {
-  try {
-    albumStore.forEach((album) => {
-      const albumtemplate = `
-        <tr>
-          <td>${album.album}</td>
-          <td>${album.releaseDate}</td>
-          <td>${album.artistName}</td>
-          <td>${album.genres}</td>
-          <td>${album.averageRating}</td>
-          <td>${album.numberRatings}</td>
-        </tr> `;
-      albumRows.innerHTML += albumtemplate;
-    });
-  } catch (error) {
-    throw error;
-  }
-}
-renderAlbumsData();
-
-function onHandleAlbumSearchInput() {
-  const albumName = searchInput.value.trim();
-
-  if (!albumName) {
-    invalidTitle.classList.add("d-flex");
-  } else {
-    invalidTitle.classList.remove("d-flex");
-    invalidRating.classList.remove("d-flex");
-    return albumName;
-  }
-}
-
-function onHandleMinAlbumRatingInput() {
-  const albumRating = minAlbumRatingInput.value.trim();
-
-  if (!albumRating) {
-    invalidRating.classList.add("d-flex");
-  } else {
-    invalidRating.classList.remove("d-flex");
-    invalidTitle.classList.remove("d-flex");
-    return albumRating;
-  }
-}
-
-function onSearchAlbum(e) {
-  e.preventDefault();
-  isSuccess();
-}
-
-//search for the album title/artist name with filter function
-function searchAlbum(searchCriteria) {
-  if (!searchCriteria) {
-    return [];
-  }
-  const query = searchCriteria.toLowerCase();
-
-  const results = albumStore.filter((album) => {
-    if (album.album.toLowerCase().includes(query)) {
-      return album;
-    }
-    if (album.artistName.toLowerCase().includes(query)) {
-      return album;
-    }
-  });
-  return results;
-}
-
-//Search for the rating with filter function
-function searchRating(searchCriteria) {
-  const query = searchCriteria.toString();
-
-  const results = albumStore.filter((album) => {
-    return album.averageRating.toString().includes(query);
-  });
-
-  return results;
-}
-
-function renderAlbumSearch(searchedAlbums) {
-  try {
-    albumRows.innerHTML = "";
-
-    if (searchedAlbums.length > 0) {
-      searchedAlbums.forEach((album) => {
-        const albumtemplate = `
-          <tr>
-            <td>${album.album}</td>
-            <td>${album.releaseDate}</td>
-            <td>${album.artistName}</td>
-            <td>${album.genres}</td>
-            <td>${album.averageRating}</td>
-            <td>${album.numberRatings}</td>
-          </tr> `;
-        albumRows.innerHTML += albumtemplate;
-      });
-    } else {
-      // Handle case when no albums are found
-    }
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-function isSuccess() {
-  try {
-    const isValidTitle = onHandleAlbumSearchInput();
-    const searchAlbumCriteria = searchAlbum(isValidTitle);
-
-    const isValidRating = onHandleMinAlbumRatingInput();
-    //const searchRatingCriteria = searchRating(isValidRating);
-
-    /* const searchToRender = isValidTitle
-      ? searchAlbumCriteria
-      : searchRatingCriteria;
-    renderAlbumSearch(searchToRender); */
-
-    if (isValidTitle && !isValidRating) {
-      renderAlbumSearch(searchAlbumCriteria);
-    }
-  } catch (error) {
-    console.log(error);
-  }
+  //renderAlbumSearch(searchAlbumOrArtistResults);
 }
