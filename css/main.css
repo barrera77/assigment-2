@@ -1,1 +1,11 @@
-/* our custom CSS file*/ 
+/* our custom CSS file*/
+.invalid-feedback {
+  padding-left: 1rem;
+  align-content: center;
+}
+.invalid-feedback label {
+  margin-left: 10px;
+}
+.invalid-feedback i {
+  margin-bottom: 1rem;
+}
