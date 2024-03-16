@@ -177,26 +177,27 @@ function isSuccess() {
   if (!albumTitle && albumRating) {
     messageContainer.innerHTML = ""; //Clear null search msg if present
 
-    const ratingResults = searchAlbumByRating(albumRating);
+    albumResults = searchAlbumByRating(albumRating);
     //renderAlbumSearch(ratingResults)
-    renderAlbumSearch(ratingResults);
+    renderAlbumSearch(albumResults);
   }
 
   /* fix filter using both criterias */
 
   //fiter by both album/artist & rating
-  /* if (albumTitle && albumRating) {
+  if (albumTitle && albumRating) {
     messageContainer.innerHTML = ""; //Clear null search msg if present
 
     albumResults = searchAlbumOrArtist(albumTitle);
+    const ratingResults = searchAlbumByRating(albumRating);
 
     const filterByAlbumAndRating = albumResults.filter((album) => {
       //find out if the album criteria matches the rating criteria
-      return albumResults.some((rating) => rating.album === album.album);
+      return ratingResults.some((rating) => rating.album === album.album);
     });
 
     renderAlbumSearch(filterByAlbumAndRating);
-  } */
+  }
 
   console.log("Search Criteria: ", albumTitle, albumRating);
   console.log(albumResults);
