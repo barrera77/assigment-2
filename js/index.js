@@ -5,23 +5,23 @@ const invalidTitle = document.querySelector("#invalid-title");
 const invalidRating = document.querySelector("#invalid-rating");
 const messageContainer = document.querySelector("#message-container");
 
-/* Bonus TASK 1 */
+/* #region Bonus TASK 1*/
 const averageRating = document.querySelector("#average-rating");
 averageRating.addEventListener("click", onHandleAverageRatingFilter);
 
 function onHandleAverageRatingFilter() {
-  filterAlbums(averageRating.cellIndex);
+  filterAlbums(averageRating.cellIndex, "number");
 }
 
 const minimumReviews = document.querySelector("#minimum-reviews");
 minimumReviews.addEventListener("click", onHandleMinimumReviewsFilter);
 
 function onHandleMinimumReviewsFilter() {
-  filterAlbums(minimumReviews.cellIndex);
+  filterAlbums(minimumReviews.cellIndex, "number");
 }
 
 // function to filter the rows
-function filterAlbums(columnIndex) {
+function filterAlbums(columnIndex, columnType) {
   let rowsArray = Array.from(albumRows.children);
 
   //Create comparision parameters
@@ -30,8 +30,14 @@ function filterAlbums(columnIndex) {
     let rowAValue = rowA.cells[columnIndex].textContent;
     let rowBValue = rowB.cells[columnIndex].textContent;
 
-    //Return & convert content to numeric values to be able to sort
-    return parseFloat(rowAValue) - parseFloat(rowBValue);
+    //If the cell value is a number
+    if (columnType === "number") {
+      return parseFloat(rowAValue) - parseFloat(rowBValue);
+    }
+    //if the cell value is a datee
+    if (columnType === "date") {
+      return Date.parse(rowAValue) - Date.parse(rowBValue);
+    }
   };
   //Sort the albums
   rowsArray.sort(compare);
@@ -41,6 +47,15 @@ function filterAlbums(columnIndex) {
   //Append the sorted rows to the table
   albumRows.append(...rowsArray);
 }
+/* #endregion Bonus TASK 1*/
+
+/* #region  Bonus TASK 2 */
+const releaseDate = document.querySelector("#release-date");
+releaseDate.addEventListener("click", onHandleReleaseDateFilter);
+function onHandleReleaseDateFilter() {
+  filterAlbums(releaseDate.cellIndex, "date");
+}
+/* #endregion Bonus TASK 2*/
 
 /* TASK #1 */
 const albumRows = document.querySelector("#album-rows");

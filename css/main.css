@@ -16,6 +16,24 @@
 }
 
 #average-rating,
-#minimum-reviews {
+#minimum-reviews,
+#release-date {
   cursor: pointer;
+}
+
+#average-rating:hover,
+#minimum-reviews:hover,
+#release-date:hover {
+  background-color: white;
+  color: black;
+}
+
+#albumn-column-headers {
+  background-color: black;
+  color: white;
+}
+table th,
+td {
+  margin: auto;
+  vertical-align: middle;
 }
