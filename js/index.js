@@ -5,6 +5,43 @@ const invalidTitle = document.querySelector("#invalid-title");
 const invalidRating = document.querySelector("#invalid-rating");
 const messageContainer = document.querySelector("#message-container");
 
+/* Bonus TASK 1 */
+const averageRating = document.querySelector("#average-rating");
+averageRating.addEventListener("click", onHandleAverageRatingFilter);
+
+function onHandleAverageRatingFilter() {
+  filterAlbums(averageRating.cellIndex);
+}
+
+const minimumReviews = document.querySelector("#minimum-reviews");
+minimumReviews.addEventListener("click", onHandleMinimumReviewsFilter);
+
+function onHandleMinimumReviewsFilter() {
+  filterAlbums(minimumReviews.cellIndex);
+}
+
+// function to filter the rows
+function filterAlbums(columnIndex) {
+  let rowsArray = Array.from(albumRows.children);
+
+  //Create comparision parameters
+  let compare = function (rowA, rowB) {
+    //get cell contents
+    let rowAValue = rowA.cells[columnIndex].textContent;
+    let rowBValue = rowB.cells[columnIndex].textContent;
+
+    //Return & convert content to numeric values to be able to sort
+    return parseFloat(rowAValue) - parseFloat(rowBValue);
+  };
+  //Sort the albums
+  rowsArray.sort(compare);
+
+  //Clear the table
+  albumRows.innerHTML = "";
+  //Append the sorted rows to the table
+  albumRows.append(...rowsArray);
+}
+
 /* TASK #1 */
 const albumRows = document.querySelector("#album-rows");
 const url = "public/data/albums.json";

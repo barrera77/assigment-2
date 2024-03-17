@@ -14,3 +14,8 @@
   margin: auto;
   color: black;
 }
+
+#average-rating,
+#minimum-reviews {
+  cursor: pointer;
+}
