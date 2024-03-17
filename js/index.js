@@ -10,14 +10,14 @@ const averageRating = document.querySelector("#average-rating");
 averageRating.addEventListener("click", onHandleAverageRatingFilter);
 
 function onHandleAverageRatingFilter() {
-  filterAlbums(averageRating.cellIndex, "number");
+  filterAlbums(averageRating.cellIndex, averageRating.dataset.type);
 }
 
 const minimumReviews = document.querySelector("#minimum-reviews");
 minimumReviews.addEventListener("click", onHandleMinimumReviewsFilter);
 
 function onHandleMinimumReviewsFilter() {
-  filterAlbums(minimumReviews.cellIndex, "number");
+  filterAlbums(minimumReviews.cellIndex, minimumReviews.dataset.type);
 }
 
 // function to filter the rows
@@ -53,7 +53,7 @@ function filterAlbums(columnIndex, columnType) {
 const releaseDate = document.querySelector("#release-date");
 releaseDate.addEventListener("click", onHandleReleaseDateFilter);
 function onHandleReleaseDateFilter() {
-  filterAlbums(releaseDate.cellIndex, "date");
+  filterAlbums(releaseDate.cellIndex, releaseDate.dataset.type);
 }
 /* #endregion Bonus TASK 2*/
 
